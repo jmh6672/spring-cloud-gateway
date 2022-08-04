@@ -1,0 +1,4 @@
+rootProject.name = 'gateway-svc'
+include 'module-common'
+include 'gateway-api'
+include 'docs-api'

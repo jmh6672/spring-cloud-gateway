@@ -1,0 +1,38 @@
+apiVersion: skaffold/v2beta28
+kind: Config
+metadata:
+  name: gateway-svc
+build:
+  artifacts:
+    - image: 100.100.103.167/web-dev/docs-api
+      jib:
+        project: docs-api
+    - image: 100.100.103.167/web-dev/gateway-api
+      jib:
+        project: gateway-api
+
+deploy:
+  helm:
+    releases:
+      - name: docs-api-chart
+        chartPath: docs-api/helm
+        artifactOverrides:
+          imageKey: 100.100.103.167/web-dev/docs-api # artifacts 의 이미지명과 일치해야한다.
+        imageStrategy:
+          helm:
+            explicitRegistry: true
+      - name: gateway-api-chart
+        chartPath: gateway-api/helm
+        artifactOverrides:
+          imageKey: 100.100.103.167/web-dev/docs-api # artifacts 의 이미지명과 일치해야한다.
+        imageStrategy:
+          helm:
+            explicitRegistry: true
+
+profiles:
+  - name: dev
+    activation:
+    - env: SPRING_PROFILES_ACTIVE=dev
+  - name: prod
+    activation:
+    - env: SPRING_PROFILES_ACTIVE=prod

@@ -1,0 +1,12 @@
+{
+  "realm": "bcloud",
+  "auth-server-url": "http://100.100.103.163:31985/",
+  "ssl-required": "external",
+  "resource": "apigw",
+  "verify-token-audience": true,
+  "credentials": {
+    "secret": "obPG9DY7Tm1wMS6er4xSiYjDLm3GufxL"
+  },
+  "use-resource-role-mappings": true,
+  "confidential-port": 0
+}

@@ -1,0 +1,57 @@
+app:
+  version: ${project.version}
+  name: ${project.name}
+
+spring:
+  jwt:
+    secretKey: bridgetecbridgetecbridgetecbridgetecbridgetecbridgetecbridgetecbridgetec
+    queryToken: bcloudToken
+  data:
+    mongodb:
+      # k8s ??
+      uri: mongodb://root:wlwndgo@100.100.103.163:30071/ipron?replicaSet=rs0&directConnection=true&authSource=admin&authMechanism=SCRAM-SHA-1
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedHeaders:
+              - text/event-stream
+              - x-requested-with
+              - authorization
+              - content-type
+              - credential
+              - X-AUTH-TOKEN
+              - X-CSRF-TOKEN
+            allowedMethods:
+              - POST
+              - GET
+              - PUT
+              - OPTIONS
+              - DELETE
+
+---
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS}|%clr(%-5level)|%X{traceId}|%X{spanId}|%clr(%F){cyan}:%L|%clr(%logger{0}){blue}|%clr(%M){magenta}|%msg%n"
+  level:
+    root: info
+    ipron.cloud.web.advice.*: debug
+
+---
+management:
+  endpoints:
+    web:
+      exposure:
+        include: loggers, health
+
+---
+opentracing:
+  jaeger:
+    enabled: true
+    log-spans: false
+    enable-b3-propagation: true
+    udp-sender:
+      host: localhost
+      port: 6831

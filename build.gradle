@@ -1,0 +1,138 @@
+buildscript {
+    ext {
+        imageRegistryIp = "100.100.103.167"
+        repoGroup = "web-dev"
+        repoUsername = "admin"
+        repoPassword = "wlwndgo"
+        servicePort = "10080"
+        serviceProfile = "dev"
+        springBootVersion = '2.5.3'
+        jibVersion = '3.2.1'
+    }
+    repositories {
+        mavenCentral()
+        maven {
+          url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.11.RELEASE"
+        classpath("gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:${jibVersion}")
+    }
+}
+
+
+
+subprojects  {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'com.google.cloud.tools.jib'
+
+    //공통 패키지 그룹 및 언어 레벨
+    group = 'ipron.cloud.web'
+    sourceCompatibility = '11'
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:2020.0.3"
+        }
+    }
+
+    //모든 모듈에서 프로퍼티 정의를 먼저 진행한다.
+    project.evaluate()
+
+    //gradle의 프로퍼티값들을 자바 리소스로 가져오기 전에 clean을 해줘서 강제 update 하기 위함.
+    compileJava{
+        dependsOn clean
+    }
+
+    //application.yml 리소스 파일에 프로퍼티값 주입
+    processResources {
+        filesMatching('**/application.yml') {
+            expand(project.properties)
+        }
+    }
+
+    //  jar 로 떨굴때 최상위 모듈의 build/ 디렉토리로
+    bootJar{
+        destinationDirectory = file(rootProject.buildDir)
+    }
+
+
+    //compileOnly에 annotationProcessor을 상속시켜서 lombok이 사용할 수 있도록 위함
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    // https://github.com/GoogleContainerTools/jib/tree/master/jib-gradle-plugin#from-closure
+    jib {
+        allowInsecureRegistries = true
+        from {
+            image = "adoptopenjdk:16-jre"
+        }
+        to {
+            image = "${imageRegistryIp}/${repoGroup}/${project.name}"
+            auth {
+                username = "${repoUsername}".toString()
+                password = "${repoPassword}".toString()
+            }
+            tags = [
+                    "${(rootProject.version!='unspecified' && rootProject.version!=null && rootProject.version!='') ? rootProject.version : getVersion()}",
+                    "${new Date().format("yyyyMMddHHmmss")}"
+            ]
+            container {
+                environment = [
+                        "JAVA_TOOL_OPTIONS": "-Xmx2048m -Dserver.port=${servicePort}".toString(),
+                        "SPRING_PROFILES_ACTIVE": "${serviceProfile}".toString()
+                ]
+            }
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        //JWT
+        implementation "io.jsonwebtoken:jjwt-api:0.11.2"
+        implementation "io.jsonwebtoken:jjwt-impl:0.11.2"
+        implementation "io.jsonwebtoken:jjwt-jackson:0.11.2"
+
+        // https://mvnrepository.com/artifact/io.opentracing.contrib/opentracing-spring-jaeger-cloud-starter
+        implementation 'io.opentracing.contrib:opentracing-spring-jaeger-cloud-starter:3.3.1'
+
+        implementation 'org.springframework.boot:spring-boot-starter-actuator'
+        implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
+        implementation("org.springframework.cloud:spring-cloud-starter-gateway")
+        implementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner"){
+            exclude group: "org.springframework.boot", module: "spring-boot-starter-web"
+        }
+
+        compileOnly 'org.projectlombok:lombok'
+        developmentOnly 'org.springframework.boot:spring-boot-devtools'
+        annotationProcessor 'org.projectlombok:lombok'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}
+
+
+project(':gateway-api') {
+    dependencies {
+        implementation project(':module-common')
+    }
+}
+
+project(':docs-api') {
+    dependencies {
+        implementation project(':module-common')
+    }
+}

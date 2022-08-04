@@ -1,0 +1,42 @@
+app:
+  version: ${project.version}
+  name: ${project.name}
+
+server:
+  port: 11001
+
+spring:
+  application:
+    name: docs-api-svc
+  cloud:
+    gateway:
+      default-filters:
+        - RewritePath=/v3/api-docs/(?<path>.*),/${path}/v3/api-docs
+
+---
+#openapi option 참고: https://springdoc.org/#properties
+springdoc:
+  api-docs:
+    groups:
+      enabled: true
+  swagger-ui:
+    operations-sorter: method
+    tags-sorter: alpha  # 태그정렬
+    path: /docs
+    disable-swagger-default-url: false
+    display-query-params-without-oauth2: true
+    groups-order: desc  # 그룹정렬
+    display-request-duration: true
+  override-with-generic-response: false
+
+---
+management:
+  endpoint:
+    restart:
+      enabled: true
+    gateway:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: gateway

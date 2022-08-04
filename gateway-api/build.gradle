@@ -1,0 +1,11 @@
+version = '0.0.15'
+
+repositories {
+}
+
+dependencies {
+    // spring.cloud.gateway.default-filters: TokenRelay 사용 - keyclock 테스트용
+//    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-security
+//    implementation("org.springframework.cloud:spring-cloud-starter-security:2.2.5.RELEASE")
+}

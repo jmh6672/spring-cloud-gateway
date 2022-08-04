@@ -1,0 +1,8 @@
+name: gateway-api
+image:
+  repository: 100.100.103.167/web-dev/gateway-api
+  tag: latest
+  pullPolicy: Always
+replicaCount: 1
+nodePort: 30600
+containerPort: 10080

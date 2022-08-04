@@ -1,0 +1,9 @@
+version = '0.0.9'
+
+repositories {
+}
+
+dependencies {
+    // swagger
+    implementation 'org.springdoc:springdoc-openapi-webflux-ui:1.5.10'
+}
