@@ -31,7 +31,7 @@ subprojects  {
     apply plugin: 'com.google.cloud.tools.jib'
 
     //공통 패키지 그룹 및 언어 레벨
-    group = 'ipron.cloud.web'
+    group = 'org.example'
     sourceCompatibility = '11'
 
     dependencyManagement {

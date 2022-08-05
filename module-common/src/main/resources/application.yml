@@ -37,7 +37,7 @@ logging:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS}|%clr(%-5level)|%X{traceId}|%X{spanId}|%clr(%F){cyan}:%L|%clr(%logger{0}){blue}|%clr(%M){magenta}|%msg%n"
   level:
     root: info
-    ipron.cloud.web.advice.*: debug
+    org.example.advice.*: debug
 
 ---
 management:
